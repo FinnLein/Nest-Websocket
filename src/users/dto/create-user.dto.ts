@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator'
 
-export class RegisterDto {
+export class CreateUserDto {
 	@IsString()
 	@IsNotEmpty()
 	name: string
@@ -8,7 +8,7 @@ export class RegisterDto {
 	@IsEmail()
 	email: string
 
-	@MinLength(6, { message: 'Too short! Must be at least 6 symbols long!' })
 	@IsString()
+	@MinLength(6, {message: "Too short! Must be at least 6 symbols long!"})
 	password: string
 }

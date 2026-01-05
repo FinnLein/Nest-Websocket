@@ -1,7 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { hash, verify } from 'argon2'
+import { verify } from 'argon2'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { UsersService } from 'src/users/users.service'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
 
@@ -10,21 +11,20 @@ export class AuthService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly jwt: JwtService,
+		private readonly usersService: UsersService
 	) { }
 
 	async register(dto: RegisterDto) {
-		const user = await this.findUserByEmail(dto.email)
+		const user = await this.usersService.getByEmail(dto.email)
 
 		if (user) {
 			throw new ConflictException('Name or email is already taken!')
 		}
 
-		const newUser = await this.prisma.user.create({
-			data: {
-				name: dto.name,
-				email: dto.email,
-				password: await hash(dto.password)
-			}
+		const newUser = await this.usersService.create({
+			name: dto.name,
+			email: dto.email,
+			password: dto.password
 		})
 
 		const accessToken = await this.generateTokens(newUser.id, newUser.name)
@@ -33,12 +33,11 @@ export class AuthService {
 	}
 
 	async login(dto: LoginDto) {
-		const user = await this.findUserByEmail(dto.email)
+		const user = await this.usersService.getByEmail(dto.email)
 
 		if (!user) throw new NotFoundException('User not found!')
 
 		const isValid = await verify(user.password, dto.password)
-
 		if (!isValid) throw new BadRequestException('Invalid password!')
 
 		const accessToken = await this.generateTokens(user.id, user.name)
@@ -46,15 +45,6 @@ export class AuthService {
 		return accessToken
 	}
 
-	private async findUserByEmail(email: string) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				email
-			}
-		})
-
-		return user
-	}
 
 	private async generateTokens(id: string, name: string) {
 		const payload = { sub: id, name }
