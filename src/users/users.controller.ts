@@ -8,7 +8,7 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getAll() {
-    return this.getAll()
+    return this.usersService.getAll()
   }
 
   @Get('by-name/:name')

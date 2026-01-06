@@ -14,7 +14,7 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
-  public async register(@Body() dto: RegisterDto, @Res() res: Response) {
+  public async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const accessToken = await this.authService.register(dto)
 
     this.tokensService.addTokenToResponse(accessToken, res)
@@ -24,7 +24,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  public async login(@Body() dto: LoginDto, @Res() res: Response) {
+  public async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const accessToken = await this.authService.login(dto)
 
     this.tokensService.addTokenToResponse(accessToken, res)

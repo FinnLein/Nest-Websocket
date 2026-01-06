@@ -1,20 +1,22 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
-import { AuthModule } from './auth/auth.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
+import { PrismaModule } from './prisma/prisma.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
-			isGlobal: true
+			isGlobal: true,
+			envFilePath: '.env'
 		}),
 		ChatModule,
 		AuthModule,
 		PrismaModule,
-		UsersModule],
+		UsersModule
+	],
 	controllers: [],
 	providers: []
 })
-export class AppModule {}
+export class AppModule { }

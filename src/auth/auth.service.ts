@@ -1,7 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { verify } from 'argon2'
-import { PrismaService } from 'src/prisma/prisma.service'
 import { UsersService } from 'src/users/users.service'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
@@ -9,7 +8,6 @@ import { RegisterDto } from './dto/register.dto'
 @Injectable()
 export class AuthService {
 	constructor(
-		private readonly prisma: PrismaService,
 		private readonly jwt: JwtService,
 		private readonly usersService: UsersService
 	) { }
@@ -27,7 +25,7 @@ export class AuthService {
 			password: dto.password
 		})
 
-		const accessToken = await this.generateTokens(newUser.id, newUser.name)
+		const accessToken = await this.generateTokens(newUser.id)
 
 		return accessToken
 	}
@@ -40,17 +38,17 @@ export class AuthService {
 		const isValid = await verify(user.password, dto.password)
 		if (!isValid) throw new BadRequestException('Invalid password!')
 
-		const accessToken = await this.generateTokens(user.id, user.name)
+		const accessToken = await this.generateTokens(user.id)
 
 		return accessToken
 	}
 
 
-	private async generateTokens(id: string, name: string) {
-		const payload = { sub: id, name }
+	private async generateTokens(id: string) {
+		const payload = { sub: id }
 
 		const accessToken = await this.jwt.signAsync(payload, {
-			expiresIn: '15m'
+			expiresIn: '1h'
 		})
 
 		return accessToken
