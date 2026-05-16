@@ -17,6 +17,11 @@ async function bootstrap() {
 	app.useGlobalPipes(new ValidationPipe({ transform: true }))
 	app.use(cookieParser())
 
-	await app.listen(config.get('APPLICATION_PORT') ?? 3000)
+	await app.listen(config.get('APPLICATION_PORT', 4000))
+
+	  const server = app.getHttpServer()
+  const address = server.address()
+  console.log(`🚀 Server running on http://localhost:${address.port}`)
+  console.log(`🔌 WebSocket available at ws://localhost:${address.port}/chat`)
 }
 bootstrap()
